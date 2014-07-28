@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
+import android.graphics.Typeface;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,9 +15,13 @@ import android.widget.TextView;
 public class ListSMSAdapter extends ArrayAdapter<Message>{
 	ArrayList<Message> listMessages;
 	LayoutInflater li;
+	Typeface typefaceAddress, typefaceBody, typefaceDate;
 	public ListSMSAdapter(Context context, int textViewResourceId, List<Message> list) {
 		super(context, textViewResourceId, list);
 		li = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		typefaceAddress = Typeface.createFromAsset(context.getAssets(), "DancingScript-Bold.ttf");
+		typefaceBody = Typeface.createFromAsset(context.getAssets(), "PalatinoLinotype.ttf");
+		typefaceDate = Typeface.createFromAsset(context.getAssets(), "amazone.ttf");
 	}
 	
 	@Override
@@ -28,6 +34,9 @@ public class ListSMSAdapter extends ArrayAdapter<Message>{
 			holder.txtAddress = (TextView) convertView.findViewById(R.id.txtAddress);
 			holder.txtBody = (TextView) convertView.findViewById(R.id.txtBody);
 			holder.txtDate = (TextView) convertView.findViewById(R.id.txtDate);
+			holder.txtAddress.setTypeface(typefaceAddress);
+			holder.txtDate.setTypeface(typefaceDate);
+			holder.txtBody.setTypeface(typefaceBody);
 			convertView.setTag(holder);
 		}
 		else{

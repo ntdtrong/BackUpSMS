@@ -6,5 +6,7 @@
     <string name="action_histories">Histories</string>
     <string name="action_clear">Clear</string>
     <string name="hello_world">Hello world!</string>
+    <string name="delete_confirm_title">Confirm!</string>
+    <string name="delete_confirm_message">Are you sure delete?</string>
 
 </resources>
