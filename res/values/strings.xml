@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">BackUpSMS</string>
+    <string name="action_backup">Back up</string>
+    <string name="action_histories">Histories</string>
+    <string name="action_clear">Clear</string>
+    <string name="hello_world">Hello world!</string>
+
+</resources>
