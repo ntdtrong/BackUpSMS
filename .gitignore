@@ -35,4 +35,6 @@ Icon
 .Spotlight-V100
 .Trashes
 
-bin/
+
+/bin
+/gen
