@@ -1,6 +1,7 @@
 package dinhtrong.app.backupsms;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -20,7 +21,11 @@ public class SMSDetailsActivity extends Activity {
 			Message item = arrMessage.get(0);
 			txtHeader.setText(item.getAddress());
 		}
+		
+		CustomCompare comparator = new CustomCompare();
+		Collections.sort(arrMessage, comparator);
 		ListDetailsAdapter adapter = new ListDetailsAdapter(this, 0, arrMessage);
+		
 		ListView listviewSMS = (ListView) findViewById(R.id.listSMS);
 		listviewSMS.setAdapter(adapter);
 	}
