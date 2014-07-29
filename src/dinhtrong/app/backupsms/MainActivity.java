@@ -82,7 +82,7 @@ public class MainActivity extends Activity implements OnItemClickListener{
 			   Log.e("id", id +" : " + date);
 			   Message mess = new Message(Integer.parseInt(id), body, getDate(date), address, type);
 			   if(listSMS.has(address)){
-				   listSMS.getJSONObject(address).accumulate(id, mess.toJson());
+				   listSMS.getJSONObject(address).put(id, mess.toJson());
 			   }
 			   else{
 				   JSONObject js = new JSONObject();
