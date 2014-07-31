@@ -1,0 +1,9 @@
+Create table messages
+(
+id integer primary key,
+address VARCHAR(15),
+body TEXT,
+date VARCHAR(15),
+type integer
+)
+GO

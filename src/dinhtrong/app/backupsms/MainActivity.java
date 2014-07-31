@@ -8,6 +8,9 @@ import java.util.Iterator;
 
 import org.json.JSONObject;
 
+import dinhtrong.app.backupsms.database.MessageModel;
+import dinhtrong.app.backupsms.database.filter.FilterPerform;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
@@ -30,14 +33,18 @@ public class MainActivity extends Activity implements OnItemClickListener{
 	
 	ListView listviewSMS;
 	
+	MessageModel messageModel;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		listviewSMS = (ListView) findViewById(R.id.listSMS);
 		sdf = new SimpleDateFormat(datePatern);
+		messageModel = MessageModel.getInstance(this);
 		fileAccess = new FileAccess(this);
-		showListSMS();
+//		showListSMS();
+		showMessageFromDB();
 //		readSMS();
 	}
 	
@@ -67,10 +74,22 @@ public class MainActivity extends Activity implements OnItemClickListener{
 		listviewSMS.setOnItemClickListener(this);
 	}
 	
+	private void showMessageFromDB(){
+		FilterPerform filter = new FilterPerform();
+		filter.setGroupBy("address");
+		filter.setOrderBy("id DESC");
+		ArrayList<Message> arrMessage = messageModel.get(filter);
+		
+		ListSMSAdapter adapter = new ListSMSAdapter(this, 0, arrMessage);
+		listviewSMS.setAdapter(adapter);
+		listviewSMS.setOnItemClickListener(this);
+	}
+	
 	private void readSMS(){
+		messageModel.truncate();
 		Cursor cursor = getContentResolver().query(Uri.parse("content://sms/"), null, null, null, "sms._id DESC");
 		cursor.moveToFirst();
-		JSONObject listSMS = new JSONObject();
+//		JSONObject listSMS = new JSONObject();
 		
 		do{
 		   try {
@@ -80,15 +99,18 @@ public class MainActivity extends Activity implements OnItemClickListener{
 			   String date = cursor.getString(cursor.getColumnIndexOrThrow("date"));
 			   String type = cursor.getString(cursor.getColumnIndexOrThrow("type"));
 			   Log.e("id", id +" : " + date);
-			   Message mess = new Message(Integer.parseInt(id), body, getDate(date), address, type);
-			   if(listSMS.has(address)){
-				   listSMS.getJSONObject(address).put(id, mess.toJson());
-			   }
-			   else{
-				   JSONObject js = new JSONObject();
-				   js.put(id, mess.toJson());
-				   listSMS.put(address, js);
-			   }
+			   Message mess = new Message(Integer.parseInt(id), body, getDate(date), address, Integer.parseInt(type));
+			   messageModel.insert(mess);
+			   
+			   
+//			   if(listSMS.has(address)){
+//				   listSMS.getJSONObject(address).put(id, mess.toJson());
+//			   }
+//			   else{
+//				   JSONObject js = new JSONObject();
+//				   js.put(id, mess.toJson());
+//				   listSMS.put(address, js);
+//			   }
 			   
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -96,7 +118,7 @@ public class MainActivity extends Activity implements OnItemClickListener{
 		}while(cursor.moveToNext());
 //		Log.e("message", listSMS.toString());
 		
-		fileAccess.excuteData(listSMS);
+//		fileAccess.excuteData(listSMS);
 	}
 	
 	private String getDate(String miliseconds){
@@ -154,7 +176,12 @@ public class MainActivity extends Activity implements OnItemClickListener{
 		if(parent.getAdapter() instanceof ListSMSAdapter){
 			ListSMSAdapter adapter = (ListSMSAdapter) parent.getAdapter();
 			Message mess = adapter.getItem(position);
-			showListSMSDetails(mess.getAddress());
+			
+			Intent i = new Intent(this, SMSDetailsActivity.class);
+			i.putExtra("address", mess.getAddress());
+			startActivity(i);
+			
+//			showListSMSDetails(mess.getAddress());
 		}
 	}
 	

@@ -6,9 +6,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Message implements Parcelable{
-	private int id;
-	private String body, date, address, type;
-	public Message(int id, String body, String date, String address, String type){
+	private int id, type;
+	private String body, date, address;
+	public Message(int id, String body, String date, String address, int type){
 		this.id = id;
 		this.address = address;
 		this.body = body;
@@ -21,7 +21,7 @@ public class Message implements Parcelable{
 		this.address = json.optString("address");
 		this.body = json.optString("body");
 		this.date = json.optString("date");
-		this.type = json.optString("type");
+		this.type = json.optInt("type");
 	}
 	
 	public JSONObject toJson(){
@@ -69,11 +69,11 @@ public class Message implements Parcelable{
 		this.address = address;
 	}
 
-	public String getType() {
+	public int getType() {
 		return type;
 	}
 
-	public void setType(String type) {
+	public void setType(int type) {
 		this.type = type;
 	}
 
@@ -88,7 +88,7 @@ public class Message implements Parcelable{
 		address = in.readString();
 		body = in.readString();
 		date = in.readString();
-		type = in.readString();
+		type = in.readInt();
 	}
 
 	@Override
@@ -97,7 +97,7 @@ public class Message implements Parcelable{
 		dest.writeString(address);
 		dest.writeString(body);
 		dest.writeString(date);
-		dest.writeString(type);
+		dest.writeInt(type);
 	}	
 	
 	public static final Parcelable.Creator<Message> CREATOR = new Creator<Message>() {

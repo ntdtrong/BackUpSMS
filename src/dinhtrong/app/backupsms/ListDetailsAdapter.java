@@ -54,12 +54,7 @@ public class ListDetailsAdapter extends ArrayAdapter<Message>{
 		holder.txtBody.setText(mess.getBody());
 		holder.txtDate.setText(mess.getDate());
 		
-		int type = 1;
-		try {
-			type = Integer.parseInt(mess.getType().trim());
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
+		int type = mess.getType();
 		if(type == 1){
 			holder.bg.setBackgroundResource(R.drawable.sms_receive);
 			holder.bg.setLayoutParams(paramsReceive);
