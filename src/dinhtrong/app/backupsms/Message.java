@@ -6,7 +6,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Message implements Parcelable{
-	private int id, type;
+	private int id, type, totals;
 	private String body, date, address;
 	public Message(int id, String body, String date, String address, int type){
 		this.id = id;
@@ -76,12 +76,24 @@ public class Message implements Parcelable{
 	public void setType(int type) {
 		this.type = type;
 	}
+	
+	
+
+	public int getTotals() {
+		return totals;
+	}
+
+	public void setTotals(int totals) {
+		this.totals = totals;
+	}
 
 	@Override
 	public int describeContents() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
+	
+	
 	
 	public Message(Parcel in){
 		id = in.readInt();

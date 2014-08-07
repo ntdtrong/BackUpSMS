@@ -1,6 +1,8 @@
 package dinhtrong.app.backupsms;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import android.content.Context;
@@ -18,6 +20,7 @@ public class ListDetailsAdapter extends ArrayAdapter<Message>{
 	LayoutInflater li;
 	Typeface typefaceAddress, typefaceBody, typefaceDate;
 	LayoutParams paramsSend, paramsReceive;
+	SimpleDateFormat sdf;
 	public ListDetailsAdapter(Context context, int textViewResourceId, List<Message> list) {
 		super(context, textViewResourceId, list);
 		li = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -28,9 +31,18 @@ public class ListDetailsAdapter extends ArrayAdapter<Message>{
 		paramsSend = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 		paramsReceive.setMargins(0, 0, 50, 0);
 		paramsSend.setMargins(50, 0, 0, 0);
+		sdf = new SimpleDateFormat(MainActivity.datePatern);
 	}
 	
-	
+	private String getDate(String miliseconds){
+		try {
+//			return (String) DateFormat.format(datePatern, );
+			return sdf.format(new Date(Long.parseLong(miliseconds)));
+		} catch (Exception e) {
+		}
+		
+		return "";
+	}
 	
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
@@ -52,7 +64,7 @@ public class ListDetailsAdapter extends ArrayAdapter<Message>{
 			holder = (ViewHolder) convertView.getTag();
 		}
 		holder.txtBody.setText(mess.getBody());
-		holder.txtDate.setText(mess.getDate());
+		holder.txtDate.setText(getDate(mess.getDate()));
 		
 		int type = mess.getType();
 		if(type == 1){
@@ -72,6 +84,12 @@ public class ListDetailsAdapter extends ArrayAdapter<Message>{
 		
 		Log.e("type", mess.getId() + " : " + mess.getBody());
 		return convertView;
+	}
+	
+	public void addTop(ArrayList<Message> list){
+		for (Message message : list) {
+			insert(message, 0);
+		}
 	}
 	
 	class ViewHolder{

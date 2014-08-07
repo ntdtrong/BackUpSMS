@@ -2,20 +2,17 @@ package dinhtrong.app.backupsms;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
 
 import org.json.JSONObject;
 
-import dinhtrong.app.backupsms.database.MessageModel;
-import dinhtrong.app.backupsms.database.filter.FilterPerform;
-
-import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.ContactsContract.Contacts;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,13 +20,15 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+import dinhtrong.app.backupsms.database.MessageModel;
+import dinhtrong.app.backupsms.database.filter.FilterPerform;
 
-public class MainActivity extends Activity implements OnItemClickListener{
+public class MainActivity extends FragmentActivity implements OnItemClickListener{
 
 	FileAccess fileAccess;
 	JSONObject jsAllSMS;
 	SimpleDateFormat sdf;
-	String datePatern = "d MMM, ''yy HH:mm:ss";
+	public static String datePatern = "d MMM, ''yy HH:mm:ss";
 	
 	ListView listviewSMS;
 	
@@ -45,40 +44,44 @@ public class MainActivity extends Activity implements OnItemClickListener{
 		fileAccess = new FileAccess(this);
 //		showListSMS();
 		showMessageFromDB();
+		
+		int totals = messageModel.getTotals();
+		setTitle("SMS ( totals : " + totals + ")");
+		
 //		readSMS();
 	}
 	
-	private void showListSMS(){
-		String data = fileAccess.readMainFile();
-//		Log.e(tag, data);
-		ArrayList<Message> arrMessage = new ArrayList<Message>();
-		try {
-			jsAllSMS = new JSONObject(data);
-			Iterator<String> addresses = jsAllSMS.keys();
-			while (addresses.hasNext()) {
-				String address = (String) addresses.next();
-				JSONObject js = jsAllSMS.getJSONObject(address);
-				Iterator<String> ids = js.keys();
-				if(ids.hasNext()){
-					String id = (String) ids.next();
-					arrMessage.add(new Message(js.getJSONObject(id)));
-				}
-			}
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		ListSMSAdapter adapter = new ListSMSAdapter(this, 0, arrMessage);
-		listviewSMS.setAdapter(adapter);
-		listviewSMS.setOnItemClickListener(this);
-	}
+//	private void showListSMS(){
+//		String data = fileAccess.readMainFile();
+////		Log.e(tag, data);
+//		ArrayList<Message> arrMessage = new ArrayList<Message>();
+//		try {
+//			jsAllSMS = new JSONObject(data);
+//			Iterator<String> addresses = jsAllSMS.keys();
+//			while (addresses.hasNext()) {
+//				String address = (String) addresses.next();
+//				JSONObject js = jsAllSMS.getJSONObject(address);
+//				Iterator<String> ids = js.keys();
+//				if(ids.hasNext()){
+//					String id = (String) ids.next();
+//					arrMessage.add(new Message(js.getJSONObject(id)));
+//				}
+//			}
+//			
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		
+//		ListSMSAdapter adapter = new ListSMSAdapter(this, 0, arrMessage);
+//		listviewSMS.setAdapter(adapter);
+//		listviewSMS.setOnItemClickListener(this);
+//	}
 	
 	private void showMessageFromDB(){
 		FilterPerform filter = new FilterPerform();
 		filter.setGroupBy("address");
 		filter.setOrderBy("id DESC");
-		ArrayList<Message> arrMessage = messageModel.get(filter);
+		ArrayList<Message> arrMessage = messageModel.getMessage();
 		
 		ListSMSAdapter adapter = new ListSMSAdapter(this, 0, arrMessage);
 		listviewSMS.setAdapter(adapter);
@@ -86,7 +89,7 @@ public class MainActivity extends Activity implements OnItemClickListener{
 	}
 	
 	private void readSMS(){
-		messageModel.truncate();
+//		messageModel.truncate();
 		Cursor cursor = getContentResolver().query(Uri.parse("content://sms/"), null, null, null, "sms._id DESC");
 		cursor.moveToFirst();
 //		JSONObject listSMS = new JSONObject();
@@ -98,9 +101,11 @@ public class MainActivity extends Activity implements OnItemClickListener{
 			   String body = cursor.getString(cursor.getColumnIndexOrThrow("body"));
 			   String date = cursor.getString(cursor.getColumnIndexOrThrow("date"));
 			   String type = cursor.getString(cursor.getColumnIndexOrThrow("type"));
+			   address = validateAddress(address);
 			   Log.e("id", id +" : " + date);
-			   Message mess = new Message(Integer.parseInt(id), body, getDate(date), address, Integer.parseInt(type));
-			   messageModel.insert(mess);
+			   Message mess = new Message(Integer.parseInt(id), body, date, address, Integer.parseInt(type));
+			   if(!messageModel.isExist(mess))
+				   messageModel.insert(mess);
 			   
 			   
 //			   if(listSMS.has(address)){
@@ -121,16 +126,16 @@ public class MainActivity extends Activity implements OnItemClickListener{
 //		fileAccess.excuteData(listSMS);
 	}
 	
-	private String getDate(String miliseconds){
-		try {
-			
-//			return (String) DateFormat.format(datePatern, );
-			return sdf.format(new Date(Long.parseLong(miliseconds)));
-		} catch (Exception e) {
+	private String validateAddress(String address){
+		if(address.startsWith("+84")){
+			address = "0" + address.substring(3);
 		}
-		
-		return "";
+		else if(address.startsWith("+9")){
+			address = address.substring(1);
+		}
+		return address;
 	}
+	
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -168,7 +173,8 @@ public class MainActivity extends Activity implements OnItemClickListener{
 	
 	private void backUpSMS(){
 		readSMS();
-		showListSMS();
+		showMessageFromDB();
+//		showListSMS();
 	}
 
 	@Override
@@ -185,24 +191,24 @@ public class MainActivity extends Activity implements OnItemClickListener{
 		}
 	}
 	
-	private void showListSMSDetails(String address){
-		JSONObject json = jsAllSMS.optJSONObject(address);
-		
-		ArrayList<Message> arrMessage = new ArrayList<Message>();
-		try {
-			Iterator<String> ids = json.keys();
-			while (ids.hasNext()) {
-				String id = (String) ids.next();
-				arrMessage.add(new Message(json.getJSONObject(id)));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		Collections.sort(arrMessage, new CustomCompare());
-		Log.e("size", arrMessage.size() +"");
-		Intent i = new Intent(this, SMSDetailsActivity.class);
-		i.putParcelableArrayListExtra("list_sms", arrMessage);
-		startActivity(i);
-	}
+//	private void showListSMSDetails(String address){
+//		JSONObject json = jsAllSMS.optJSONObject(address);
+//		
+//		ArrayList<Message> arrMessage = new ArrayList<Message>();
+//		try {
+//			Iterator<String> ids = json.keys();
+//			while (ids.hasNext()) {
+//				String id = (String) ids.next();
+//				arrMessage.add(new Message(json.getJSONObject(id)));
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		Collections.sort(arrMessage, new CustomCompare());
+//		Log.e("size", arrMessage.size() +"");
+//		Intent i = new Intent(this, SMSDetailsActivity.class);
+//		i.putParcelableArrayListExtra("list_sms", arrMessage);
+//		startActivity(i);
+//	}
 
 }

@@ -1,6 +1,8 @@
 package dinhtrong.app.backupsms;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import android.content.Context;
@@ -16,12 +18,25 @@ public class ListSMSAdapter extends ArrayAdapter<Message>{
 	ArrayList<Message> listMessages;
 	LayoutInflater li;
 	Typeface typefaceAddress, typefaceBody, typefaceDate;
+	SimpleDateFormat sdf;
 	public ListSMSAdapter(Context context, int textViewResourceId, List<Message> list) {
 		super(context, textViewResourceId, list);
 		li = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		typefaceAddress = Typeface.createFromAsset(context.getAssets(), "DancingScript-Bold.ttf");
 		typefaceBody = Typeface.createFromAsset(context.getAssets(), "PalatinoLinotype.ttf");
 		typefaceDate = Typeface.createFromAsset(context.getAssets(), "amazone.ttf");
+		sdf = new SimpleDateFormat(MainActivity.datePatern);
+	}
+	
+	private String getDate(String miliseconds){
+		try {
+			
+//			return (String) DateFormat.format(datePatern, );
+			return sdf.format(new Date(Long.parseLong(miliseconds)));
+		} catch (Exception e) {
+		}
+		
+		return "";
 	}
 	
 	@Override
@@ -42,9 +57,9 @@ public class ListSMSAdapter extends ArrayAdapter<Message>{
 		else{
 			holder = (ViewHolder) convertView.getTag();
 		}
-		holder.txtAddress.setText(mess.getAddress());
+		holder.txtAddress.setText(mess.getAddress() + " (" + mess.getTotals() +")");
 		holder.txtBody.setText(mess.getBody());
-		holder.txtDate.setText(mess.getDate());
+		holder.txtDate.setText(getDate(mess.getDate()));
 		return convertView;
 	}
 	
