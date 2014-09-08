@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.ListView;
+import android.widget.TextView;
 import dinhtrong.app.backupsms.database.MessageModel;
 
 public class SMSDetailsActivity extends Activity {
@@ -21,8 +22,11 @@ public class SMSDetailsActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_details);
 		setTitle("Details");
+		TextView txtHeader = (TextView) findViewById(R.id.txtHeader);
+		
 		messageModel = MessageModel.getInstance(this);
 		address = getIntent().getExtras().getString("address");
+		txtHeader.setText(address);
 		
 //		ArrayList<Message> arrMessage =  getIntent().getExtras().getParcelableArrayList("list_sms");
 //		FilterPerform filter = new FilterPerform();

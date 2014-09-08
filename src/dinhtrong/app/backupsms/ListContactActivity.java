@@ -1,13 +1,10 @@
 package dinhtrong.app.backupsms;
 
-import org.apache.http.conn.scheme.LayeredSocketFactory;
-
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract.Contacts;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -97,6 +94,14 @@ public class ListContactActivity extends FragmentActivity implements LoaderCallb
 	@Override
 	 public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         // Put the result Cursor in the adapter for the ListView
+		Log.e("onLoadFinished", "start...............................");
+		
+		Log.e("onLoadFinished", "cursor.count : " + cursor.getCount());
+		
+		
+		
+		
+		Log.e("onLoadFinished", "end...............................");
         mCursorAdapter.swapCursor(cursor);
     }
 	

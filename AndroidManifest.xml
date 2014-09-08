@@ -29,6 +29,7 @@
         </activity>
         <activity android:name="dinhtrong.app.backupsms.SMSDetailsActivity" />
         <activity android:name="dinhtrong.app.backupsms.HistoryActivity" />
+        <activity android:name="dinhtrong.app.backupsms.ListContactActivity" />
     </application>
 
 </manifest>

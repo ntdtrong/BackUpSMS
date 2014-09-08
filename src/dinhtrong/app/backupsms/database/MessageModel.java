@@ -36,6 +36,7 @@ public class MessageModel extends AppModel<Message> {
 		agrs.put("body", data.getBody());
 		agrs.put("date", data.getDate());
 		agrs.put("type", data.getType());
+		agrs.put("contact_id", data.getContactId());
 		return agrs;
 	}
 
@@ -46,7 +47,8 @@ public class MessageModel extends AppModel<Message> {
 		String date = cur.getString(cur.getColumnIndex("date"));
 		String address = cur.getString(cur.getColumnIndex("address"));
 		int type = cur.getInt(cur.getColumnIndex("type"));
-		Message item = new Message(id, body, date, address, type);
+		int contactId = cur.getInt(cur.getColumnIndex("contact_id"));
+		Message item = new Message(id, body, date, address, type, contactId);
 		return item;
 	}
 

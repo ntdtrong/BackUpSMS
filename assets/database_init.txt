@@ -1,9 +1,19 @@
 Create table messages
 (
 id integer primary key,
+contact_id integer,
 address VARCHAR(15),
 body TEXT,
 date VARCHAR(15),
 type integer
+)
+GO
+
+Create table contacts
+(
+id integer primary key,
+phone_number varchar(150),
+email varchar(150),
+fullname nvarchar(200)
 )
 GO

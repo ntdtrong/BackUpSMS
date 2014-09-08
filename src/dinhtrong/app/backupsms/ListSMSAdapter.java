@@ -3,7 +3,11 @@ package dinhtrong.app.backupsms;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Hashtable;
 import java.util.List;
+
+import dinhtrong.app.backupsms.database.ContactModel;
+import dinhtrong.app.backupsms.entity.Contact;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -19,6 +23,8 @@ public class ListSMSAdapter extends ArrayAdapter<Message>{
 	LayoutInflater li;
 	Typeface typefaceAddress, typefaceBody, typefaceDate;
 	SimpleDateFormat sdf;
+	Hashtable<Integer, Contact> hashContact;
+	ContactModel contactModel;
 	public ListSMSAdapter(Context context, int textViewResourceId, List<Message> list) {
 		super(context, textViewResourceId, list);
 		li = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -26,6 +32,8 @@ public class ListSMSAdapter extends ArrayAdapter<Message>{
 		typefaceBody = Typeface.createFromAsset(context.getAssets(), "PalatinoLinotype.ttf");
 		typefaceDate = Typeface.createFromAsset(context.getAssets(), "amazone.ttf");
 		sdf = new SimpleDateFormat(MainActivity.datePatern);
+		hashContact = new Hashtable<Integer, Contact>();
+		contactModel = ContactModel.getInstance(context);
 	}
 	
 	private String getDate(String miliseconds){
@@ -57,7 +65,21 @@ public class ListSMSAdapter extends ArrayAdapter<Message>{
 		else{
 			holder = (ViewHolder) convertView.getTag();
 		}
-		holder.txtAddress.setText(mess.getAddress() + " (" + mess.getTotals() +")");
+		String name = mess.getAddress();
+		if(mess.getContactId() > 0){
+			Contact contact = hashContact.get(mess.getContactId());
+			if(contact == null){
+				contact = contactModel.getById(mess.getContactId()+"");
+				if(contact == null){
+					contact = new Contact();
+					contact.setFullname(mess.getAddress());
+				}
+				hashContact.put(mess.getContactId(), contact);
+			}
+			name = contact.getFullname();
+		}
+		
+		holder.txtAddress.setText(name + " (" + mess.getTotals() +")");
 		holder.txtBody.setText(mess.getBody());
 		holder.txtDate.setText(getDate(mess.getDate()));
 		return convertView;
