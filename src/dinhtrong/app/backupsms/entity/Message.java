@@ -1,6 +1,8 @@
-package dinhtrong.app.backupsms;
+package dinhtrong.app.backupsms.entity;
 
 import org.json.JSONObject;
+
+import dinhtrong.app.backupsms.util.Constants;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -35,6 +37,7 @@ public class Message implements Parcelable{
 			json.put("date", date);
 			json.put("type", type);
 			json.put("contact_id", contactId);
+			json.put("data_type", Constants.DATA_TYPE_MESSAGE);
 		}
 		catch(Exception e){}
 		return json;

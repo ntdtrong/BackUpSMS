@@ -80,7 +80,7 @@ public class ContactModel extends AppModel<Contact>{
 		Contact contact = new Contact();
 		contact.setId(0);
 		FilterPerform filter = new FilterPerform();
-		filter.setSelection("phone_number LIKE '%" + phoneNumber +"%'");
+		filter.setSelection("phone_number LIKE '%" + phoneNumber +",%'");
 		ArrayList<Contact> list = get(filter);
 		if(list != null && list.size() > 0)
 			contact = list.get(0);

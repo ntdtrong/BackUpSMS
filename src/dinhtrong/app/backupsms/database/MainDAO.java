@@ -10,9 +10,11 @@ public class MainDAO {
 	MyDatabaseHelper dbHelper;
 	SQLiteDatabase db;
 	private static MainDAO instance; 
+	private Context mContext;
 	
 	public MainDAO(Context context){
 		open(context);
+		mContext = context;
 	}
 	
 	public static MainDAO getInstance(Context context){
@@ -29,6 +31,11 @@ public class MainDAO {
 	
 	public SQLiteDatabase getDatabase(){
 		return db;
+	}
+	
+	public void clear(){
+		MessageModel.getInstance(mContext).truncate();
+		ContactModel.getInstance(mContext).truncate();
 	}
 	
 //	private void close(){

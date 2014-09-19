@@ -3,16 +3,26 @@ package dinhtrong.app.backupsms;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Locale;
 
 import org.json.JSONObject;
+
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat;
+import com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberType;
+import com.google.i18n.phonenumbers.Phonenumber;
+import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
 
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v4.app.FragmentActivity;
+import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,14 +30,18 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+import dinhtrong.app.backupsms.adapter.ListSMSAdapter;
 import dinhtrong.app.backupsms.database.ContactModel;
+import dinhtrong.app.backupsms.database.MainDAO;
 import dinhtrong.app.backupsms.database.MessageModel;
 import dinhtrong.app.backupsms.database.filter.FilterPerform;
 import dinhtrong.app.backupsms.entity.Contact;
+import dinhtrong.app.backupsms.entity.Message;
+import dinhtrong.app.backupsms.util.SMSUtils;
 
 public class MainActivity extends FragmentActivity implements OnItemClickListener{
 
-	FileAccess fileAccess;
+//	FileAccess fileAccess;
 	JSONObject jsAllSMS;
 	SimpleDateFormat sdf;
 	public static String datePatern = "d MMM, ''yy HH:mm:ss";
@@ -41,19 +55,31 @@ public class MainActivity extends FragmentActivity implements OnItemClickListene
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		Log.e("BackUpSMS", "start up................................");
+		
 		listviewSMS = (ListView) findViewById(R.id.listSMS);
 		sdf = new SimpleDateFormat(datePatern);
 		messageModel = MessageModel.getInstance(this);
 		contactModel = ContactModel.getInstance(this);
-		fileAccess = new FileAccess(this);
+//		fileAccess = new FileAccess(this);
 //		showListSMS();
 		showMessageFromDB();
+		
 		
 		int totals = messageModel.getTotals();
 		setTitle("SMS ( totals : " + totals + ")");
 		
 //		readSMS();
 		
+		SMSUtils smsUtils = new SMSUtils(this);
+//		smsUtils.backUpFromPhone();
+		
+		for(int i = 0; i < 15000; i++){
+			Message sms = new Message(i, "test sms insert backUpFromPhone backUpFromPhone backUpFromPhone" + i, System.currentTimeMillis()+"", "01268708074", 1, 0);
+			smsUtils.insertToPhone(sms);
+			Log.e("test", "insert ----" + i);
+		}
 		
 	}
 	
@@ -84,11 +110,13 @@ public class MainActivity extends FragmentActivity implements OnItemClickListene
 //	}
 	
 	private void showMessageFromDB(){
-		FilterPerform filter = new FilterPerform();
-		filter.setGroupBy("address");
-		filter.setOrderBy("id DESC");
+//		FilterPerform filter = new FilterPerform();
+//		filter.setGroupBy("address");
+//		filter.setOrderBy("id DESC");
 		ArrayList<Message> arrMessage = messageModel.getMessage();
-		
+		for (Message message : arrMessage) {
+			Log.e("showMessageFromDB", message.getAddress() + " : " + message.getContactId());
+		}
 		ListSMSAdapter adapter = new ListSMSAdapter(this, 0, arrMessage);
 		listviewSMS.setAdapter(adapter);
 		listviewSMS.setOnItemClickListener(this);
@@ -107,9 +135,9 @@ public class MainActivity extends FragmentActivity implements OnItemClickListene
 			   String body = cursor.getString(cursor.getColumnIndexOrThrow("body"));
 			   String date = cursor.getString(cursor.getColumnIndexOrThrow("date"));
 			   String type = cursor.getString(cursor.getColumnIndexOrThrow("type"));
-			   address = validateAddress(address);
+			   address = formatPhoneNumber(address);
 			   Contact contact = linkContact(address);
-			   Log.e("id", id +" : " + date);
+			   Log.e("id", id +" : " + date + ", contact_id: " + contact.getId());
 			   Message mess = new Message(Integer.parseInt(id), body, date, address, Integer.parseInt(type), contact.getId());
 			   if(!messageModel.isExist(mess))
 				   messageModel.insert(mess);
@@ -164,6 +192,7 @@ public class MainActivity extends FragmentActivity implements OnItemClickListene
 		ContentResolver contentResolver = getContentResolver();
 		Cursor cursor = contentResolver.query(CONTENT_URI, null,null, null, null);	
 		ArrayList<Contact> listContacts = new ArrayList<Contact>();
+		
 		// Loop for every contact in the phone
 		if (cursor.getCount() > 0) {
 
@@ -173,7 +202,6 @@ public class MainActivity extends FragmentActivity implements OnItemClickListene
 				String name = cursor.getString(cursor.getColumnIndex( DISPLAY_NAME ));
 				StringBuilder sbPhone = new StringBuilder();
 				StringBuilder sbEmail = new StringBuilder();  
-						
 				Contact contact = new Contact();
 				contact.setId(Integer.parseInt(contact_id));
 				contact.setFullname(name);
@@ -185,6 +213,7 @@ public class MainActivity extends FragmentActivity implements OnItemClickListene
 					Cursor phoneCursor = contentResolver.query(PhoneCONTENT_URI, null, Phone_CONTACT_ID + " = ?", new String[] { contact_id }, null);
 					while (phoneCursor.moveToNext()) {
 						phoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(NUMBER));
+						phoneNumber = formatPhoneNumber(phoneNumber);
 						sbPhone.append(phoneNumber).append(",");
 					}
 					phoneCursor.close();
@@ -208,6 +237,18 @@ public class MainActivity extends FragmentActivity implements OnItemClickListene
 		}
 		contactModel.truncate();
 		contactModel.insertMultiple(listContacts);
+	}
+	
+	private String formatPhoneNumber(String phoneNumber){
+		PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+		try {
+			PhoneNumber phone = phoneUtil.parse(phoneNumber, Locale.getDefault().getCountry());
+			phoneNumber = phoneUtil.format(phone, PhoneNumberFormat.INTERNATIONAL);
+			Log.e("formatPhoneNumber ", phoneNumber  + " ...");
+		} catch (NumberParseException e) {
+			e.printStackTrace();
+		}
+		return phoneNumber;
 	}
 	
 	private String validateAddress(String address){
@@ -238,12 +279,13 @@ public class MainActivity extends FragmentActivity implements OnItemClickListene
 			return true;
 			
 		case R.id.action_history:
-			Intent i = new Intent(this, ListContactActivity.class);
+			Intent i = new Intent(this, HistoryActivity.class);
 			startActivity(i);
 			return true;
 			
 		case R.id.action_clear:
-			fileAccess.clear();
+//			fileAccess.clear();
+			MainDAO.getInstance(this).clear();
 			ListSMSAdapter adapter = (ListSMSAdapter)listviewSMS.getAdapter();
 			adapter.clear();
 			adapter.notifyDataSetChanged();

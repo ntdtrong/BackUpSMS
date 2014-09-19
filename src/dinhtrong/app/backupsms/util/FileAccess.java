@@ -1,29 +1,39 @@
-package dinhtrong.app.backupsms;
+package dinhtrong.app.backupsms.util;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 
 import org.json.JSONObject;
 
+import dinhtrong.app.backupsms.entity.Contact;
+import dinhtrong.app.backupsms.entity.Message;
+
 import android.content.Context;
+import android.database.Cursor;
 import android.util.Log;
 
 public class FileAccess {
-	File dir, fileMain;
+	public static final String PREFIX  = "com.backupsms.app_";
+	public File dir;
+	File fileMain;
 	public FileAccess(Context context) {
 		dir = new File(context.getExternalFilesDir(null), "backup");
 		if(!dir.exists())
 			dir.mkdir();
-		fileMain = new File(dir, "SMS_Backup_Main.txt");
+		fileMain = new File(dir, PREFIX+"main.txt");
 	}
 	
 	public void clear(){
@@ -41,6 +51,42 @@ public class FileAccess {
 		return read(fileMain);
 	}
 	
+	public String createFileName(){
+		Date date = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
+		return PREFIX + sdf.format(date) + ".txt";
+	}
+	
+	public File createFile(){
+		String fileName = createFileName();
+		return new File(dir, fileName);
+	}
+	
+	public void exportData(ArrayList<Message> listMessage, ArrayList<Contact> listContacts){
+		try {
+			String fileName = createFileName();
+			File f = new File(dir, fileName);
+			FileOutputStream fos = new FileOutputStream(f);
+			 
+			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
+		 
+			for (Message message : listMessage) {
+				bw.write(message.toJson().toString());
+				bw.newLine();
+			}
+			
+			for (Contact contact : listContacts) {
+				bw.write(contact.toJson().toString());
+				bw.newLine();
+			}
+		 
+			bw.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public void excuteData(JSONObject data){
 		String strData = data.toString();
 		String currentData = "{}";
@@ -48,9 +94,7 @@ public class FileAccess {
 			currentData = read(fileMain);
 		
 		// Write milestone backup
-		Date date = new Date();
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
-		String fileName = "smsbackup_" + sdf.format(date) + ".txt";
+		String fileName = createFileName();
 		File f = new File(dir, fileName);
 		write(strData, f);
 		
@@ -86,6 +130,7 @@ public class FileAccess {
 		try {
 			os = new FileOutputStream(file);
 			os.write(data.getBytes());
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

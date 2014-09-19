@@ -1,9 +1,16 @@
-package dinhtrong.app.backupsms;
+package dinhtrong.app.backupsms.adapter;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import dinhtrong.app.backupsms.MainActivity;
+import dinhtrong.app.backupsms.R;
+import dinhtrong.app.backupsms.R.drawable;
+import dinhtrong.app.backupsms.R.id;
+import dinhtrong.app.backupsms.R.layout;
+import dinhtrong.app.backupsms.entity.Message;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -82,7 +89,7 @@ public class ListDetailsAdapter extends ArrayAdapter<Message>{
 //			((android.widget.LinearLayout.LayoutParams)((LinearLayout)convertView).getLayoutParams()).leftMargin = 100;
 		}
 		
-		Log.e("type", mess.getId() + " : " + mess.getBody());
+		Log.e("type", mess.getType() + " : " + mess.getBody());
 		return convertView;
 	}
 	

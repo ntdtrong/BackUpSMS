@@ -1,13 +1,20 @@
-package dinhtrong.app.backupsms;
+package dinhtrong.app.backupsms.adapter;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Locale;
 
+import dinhtrong.app.backupsms.MainActivity;
+import dinhtrong.app.backupsms.R;
+import dinhtrong.app.backupsms.R.id;
+import dinhtrong.app.backupsms.R.layout;
 import dinhtrong.app.backupsms.database.ContactModel;
 import dinhtrong.app.backupsms.entity.Contact;
+import dinhtrong.app.backupsms.entity.Message;
+import dinhtrong.app.backupsms.util.Utils;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -65,18 +72,22 @@ public class ListSMSAdapter extends ArrayAdapter<Message>{
 		else{
 			holder = (ViewHolder) convertView.getTag();
 		}
-		String name = mess.getAddress();
+		String name = "";
 		if(mess.getContactId() > 0){
 			Contact contact = hashContact.get(mess.getContactId());
 			if(contact == null){
 				contact = contactModel.getById(mess.getContactId()+"");
 				if(contact == null){
 					contact = new Contact();
-					contact.setFullname(mess.getAddress());
+					contact.setFullname(Utils.formatPhoneNumberShow(mess.getAddress()));
 				}
 				hashContact.put(mess.getContactId(), contact);
 			}
 			name = contact.getFullname();
+			Log.e("adapter", name + "....trong");
+		}
+		else{
+			name = Utils.formatPhoneNumberShow(mess.getAddress());
 		}
 		
 		holder.txtAddress.setText(name + " (" + mess.getTotals() +")");

@@ -1,6 +1,8 @@
-package dinhtrong.app.backupsms;
+package dinhtrong.app.backupsms.util;
 
 import java.util.Comparator;
+
+import dinhtrong.app.backupsms.entity.Message;
 
 public class CustomCompare implements Comparator<Message>{
 

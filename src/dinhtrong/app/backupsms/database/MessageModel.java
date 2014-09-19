@@ -5,7 +5,8 @@ import java.util.ArrayList;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import dinhtrong.app.backupsms.Message;
+import android.util.Log;
+import dinhtrong.app.backupsms.entity.Message;
 
 public class MessageModel extends AppModel<Message> {
 	private static MessageModel instance;
@@ -49,6 +50,7 @@ public class MessageModel extends AppModel<Message> {
 		int type = cur.getInt(cur.getColumnIndex("type"));
 		int contactId = cur.getInt(cur.getColumnIndex("contact_id"));
 		Message item = new Message(id, body, date, address, type, contactId);
+		Log.e("contact_id", contactId +"parseCursor");
 		return item;
 	}
 

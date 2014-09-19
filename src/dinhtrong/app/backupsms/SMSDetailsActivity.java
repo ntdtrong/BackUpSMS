@@ -10,7 +10,9 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.ListView;
 import android.widget.TextView;
+import dinhtrong.app.backupsms.adapter.ListDetailsAdapter;
 import dinhtrong.app.backupsms.database.MessageModel;
+import dinhtrong.app.backupsms.entity.Message;
 
 public class SMSDetailsActivity extends Activity {
 	MessageModel messageModel;

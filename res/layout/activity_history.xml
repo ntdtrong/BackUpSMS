@@ -4,6 +4,29 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@drawable/wall0" >
+    <TextView 
+        android:id="@+id/btnExport"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:padding="5dp"
+        android:drawablePadding="5dp"
+        android:drawableLeft="@drawable/ic_export"
+        android:text="Export"
+        android:background="#88dddddd"
+        />
+    
+    <TextView 
+        android:id="@+id/btnImport"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:padding="5dp"
+        android:drawablePadding="5dp"
+        android:drawableLeft="@drawable/ic_import"
+        android:text="Import"
+        android:background="#88dddddd"
+        />
     <ListView 
         android:id="@+id/listHistories"
         android:layout_width="match_parent"
